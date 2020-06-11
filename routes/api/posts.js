@@ -4,7 +4,7 @@ const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
 
 const Post = require('../../models/Post');
-const Profile = require('../../models/Profile');
+// const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 
 // @route   Post api/posts
@@ -143,9 +143,10 @@ router.put('/unlike/:id', auth, async (req, res) => {
       return res.status(400).json({ msg: 'Post has not yet been liked' });
     }
     //Get remove index
-    const removeIndex = post.likes.map((like) =>
-      like.user.toString().indexOf(req.user.id)
-    );
+    const removeIndex = post.likes
+      .map((like) => like.user.toString())
+      .indexOf(req.user.id);
+
     //remove like by index
     post.likes.splice(removeIndex, 1);
 
@@ -184,7 +185,7 @@ router.post(
         user: req.user.id,
       };
 
-      post.comments.unshift(newComment)
+      post.comments.unshift(newComment);
 
       //save the post in db and send it back towards client
       await post.save();
@@ -199,37 +200,39 @@ router.post(
 // @route   DELETE api/posts/comment/:id/:comment_id
 // @desc    Delete comment
 // @access  Private
-router.delete('/comment/:id/:comment_id', auth, async (req,res) => {
-    try {
-         //get post
-      const post = await Post.findById(req.params.id);
+router.delete('/comment/:id/:comment_id', auth, async (req, res) => {
+  try {
+    //get post
+    const post = await Post.findById(req.params.id);
 
-      //pull out comment
-      const comment = post.comments.find(comment => comment.id === req.params.comment_id)
+    //pull out comment
+    const comment = post.comments.find(
+      (comment) => comment.id === req.params.comment_id
+    );
 
-      //Make sure comment exists
-      if (!comment) {
-          return res.status(404).json({msg: 'Comment does not exist'})
-      }
-
-      //make sure user deleting comment created comment
-      if (comment.user.toString() !== req.user.id) {
-        return res.status(401).json({msg: 'User not authorized'})
-      }
-
-      //Get remove index
-    const removeIndex = post.comments.map((comment) =>
-    comment.user.toString().indexOf(req.user.id)
-  );
-  //remove like by index
-  post.comments.splice(removeIndex, 1);
-
-  await post.save();
-  res.json(post.comments);
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server Error');
+    //Make sure comment exists
+    if (!comment) {
+      return res.status(404).json({ msg: 'Comment does not exist' });
     }
-})
+
+    //make sure user deleting comment created comment
+    if (comment.user.toString() !== req.user.id) {
+      return res.status(401).json({ msg: 'User not authorized' });
+    }
+
+    //Get remove index
+    const removeIndex = post.comments
+      .map((comment) => comment.user.toString())
+      .indexOf(req.user.id);
+    //remove like by index
+    post.comments.splice(removeIndex, 1);
+
+    await post.save();
+    res.json(post.comments);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server Error');
+  }
+});
 
 module.exports = router;
