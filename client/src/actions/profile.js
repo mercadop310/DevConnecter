@@ -8,7 +8,7 @@ import {
   UPDATE_PROFILE,
   CLEAR_PROFILE,
   ACCOUNT_DELETED,
-  GET_REPOS
+  GET_REPOS,
 } from './types';
 
 export const getCurrentProfile = () => async (dispatch) => {
@@ -54,7 +54,7 @@ export const getProfiles = () => async (dispatch) => {
 };
 
 // Get profile by id
-export const getProfileById = userId => async (dispatch) => {
+export const getProfileById = (userId) => async (dispatch) => {
   try {
     const res = await axios.get(`/api/profile/user/${userId}`);
     dispatch({
@@ -73,10 +73,9 @@ export const getProfileById = userId => async (dispatch) => {
 };
 
 // Get Github Repos
-export const getGithubRepos = username => async (dispatch) => {
+export const getGithubRepos = (username) => async (dispatch) => {
   try {
-    const res = await axios.get(`api/profile/github/${username}`);
-
+    const res = await axios.get(`/api/profile/github/${username}`);
     dispatch({
       type: GET_REPOS,
       payload: res.data,
@@ -92,7 +91,7 @@ export const getGithubRepos = username => async (dispatch) => {
   }
 };
 
-// Create of Update a profile
+// Create or Update a profile
 //formData is the info for the new profile
 // history object will be used to redirect once form is submitted
 export const createProfile = (formData, history, edit = false) => async (
